@@ -7,7 +7,7 @@
 	> Created Time: Thu 09 Jul 2020 10:51:49 AM CST
  ************************************************************************/
 
-#include "head.h"
+#include "head.h" 
 char *conf = "./footballd.conf";
 struct Map court;
 struct Bpoint ball; //球的位置
@@ -16,6 +16,21 @@ struct Score score;
 int repollfd, bepollfd;
 struct User *rteam, *bteam;
 int port = 0;
+
+void logout_server(int signum) {
+    struct ChatMsg msg;
+    bzero(&msg, sizeof(msg));
+    msg.type = CHAT_FIN;
+    sprintf(msg.msg,L_RED"Server off!\n"BLUE"Thanks for use!"NONE);
+    for (int i = 0; bteam[i].online; i++) {
+        send(bteam[i].fd, (void *)&msg, sizeof(msg), 0);
+    }
+    for (int i = 0; rteam[i].online; i++) {
+        send(rteam[i].fd, (void *)&msg, sizeof(msg), 0);
+    }
+    printf(L_RED"The sever is off\n"NONE);
+    exit(0);
+}
 
 int main(int argc, char **argv) {
     int opt, listener, epollfd;
@@ -69,6 +84,9 @@ int main(int argc, char **argv) {
     struct task_queue redQueue;
     struct task_queue blueQueue;
 
+    task_queue_init(&redQueue, MAX, repollfd);
+    task_queue_init(&blueQueue, MAX, bepollfd);
+
     pthread_create(&red_t, NULL, sub_reactor, (void *)&redQueue);
     pthread_create(&blue_t, NULL, sub_reactor, (void *)&blueQueue);
     
@@ -85,20 +103,26 @@ int main(int argc, char **argv) {
     bzero(&client, sizeof(client));
     socklen_t len = sizeof(client);
 
+    signal(SIGINT, logout_server);
+    
     while (1) {
-        DBG(YELLOW"Main Reactor"NONE" : Waiting for clienti.\n");
+        DBG(YELLOW"Main Reactor"NONE" : Waiting for client.\n");
         int nfds = epoll_wait(epollfd, events, MAX * 2, -1); 
         if (nfds < 0) {
             perror("epoll_wait()");
             exit(1);
         }
+        DBG(GREEN"New Listener\n"NONE);
         for (int i = 0; i < nfds; i++) {
             struct User user;
             char buff[512] = {0};
             if (events[i].data.fd == listener) {
                 int new_fd = udp_accept(listener, &user);
                 if (new_fd > 0) {
-                //    add_to_sub_reactor(&user);
+                    DBG(GREEN"ADD TO FD"NONE);
+                    add_to_sub_reactor(&user);
+                } else {
+                    perror("udp_accept()");
                 }
             }
         }

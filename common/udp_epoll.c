@@ -7,6 +7,44 @@
 
 #include "head.h"
 extern int port;
+extern struct User *rteam;
+extern struct User *bteam;
+extern int repollfd, bepollfd;
+
+void add_event_ptr(int epollfd, int fd, int events, struct User *user) {
+    struct epoll_event ev;
+    ev.events = events;
+    ev.data.ptr = (void *)user;
+    epoll_ctl(epollfd, EPOLL_CTL_ADD, fd, &ev);
+}
+
+void del_event(int epollfd, int fd) {
+    epoll_ctl(epollfd, EPOLL_CTL_DEL, fd, NULL);
+}
+int find_sub(struct User *team) {
+    for (int i = 0; i < MAX; i++) {
+        if (!team[i].online) return i;
+    }
+    return -1;
+}
+
+void add_to_sub_reactor(struct User *user) {
+    struct User *team = (user -> team ? bteam : rteam);
+    int sub = find_sub(team);
+    if (sub < 0) {
+        fprintf(stderr, "Full Team!\n");
+        return;
+    }
+    team[sub] = *user;
+    team[sub].online = 1;
+    team[sub].flag = 10;
+    DBG(L_RED"sub = %d, name = %s\n", sub, team[sub].name);
+    if (user->team)
+        add_event_ptr(bepollfd, team[sub].fd, EPOLLIN | EPOLLET, &team[sub]);    
+    else 
+        add_event_ptr(repollfd, team[sub].fd, EPOLLIN | EPOLLET, &team[sub]);
+
+}
 
 int udp_connect(struct sockaddr_in *client) {
     int sockfd;
@@ -20,6 +58,23 @@ int udp_connect(struct sockaddr_in *client) {
     return sockfd;
 }
 
+int check_online(struct LogRequest * request) {
+    if (request->team == 0) {
+        for (int i = 0; rteam[i].online; i++) {
+            if (strcmp(request->name, rteam[i].name) == 0) {
+                return 1;
+            }
+        }
+        return 0;
+    } else {
+        for (int i = 0; bteam[i].online; i++) {
+            if (strcmp(request->name, bteam[i].name) == 0) {
+                return 1;
+            }
+        }
+        return 0;
+    } 
+}
 
 int udp_accept(int fd, struct User *user) {
     int new_fd, ret;
@@ -38,13 +93,15 @@ int udp_accept(int fd, struct User *user) {
         sendto(fd, (void *)&response, sizeof(response), 0, (struct sockaddr *)&client, len);
         return -1;
     }
-    
-   /* if (check_online(&request)) {
+
+   
+
+   if (check_online(&request)) {
         response.type = 1;
         strcpy(response.msg, "You are Already Login!");
         sendto(fd, (void *)&response, sizeof(response), 0, (struct sockaddr *)&client, len);
         return -1;
-    }*/
+    }
 
     response.type = 0;
     strcpy(response.msg, "Login Success. Enjoy yourself!");
