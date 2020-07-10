@@ -30,6 +30,7 @@ int find_sub(struct User *team) {
 
 void add_to_sub_reactor(struct User *user) {
     struct User *team = (user -> team ? bteam : rteam);
+    
     int sub = find_sub(team);
     if (sub < 0) {
         fprintf(stderr, "Full Team!\n");

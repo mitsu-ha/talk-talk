@@ -32,6 +32,7 @@ void logout_server(int signum) {
     exit(0);
 }
 
+
 int main(int argc, char **argv) {
     int opt, listener, epollfd;
     pthread_t red_t, blue_t;

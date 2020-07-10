@@ -22,6 +22,8 @@ void *do_recv () {
             printf(" <%s> ~ %s\n", msg.name, msg.msg);
         } else if (msg.type & CHAT_MSG){
             printf("%s\n", msg.msg);
+        } else if (msg.type & CHAT_FUNC) {
+            printf("%s\n", msg.msg);
         } else if (msg.type & CHAT_FIN){
             printf("%s\n", msg.msg);
             exit(1);
@@ -142,6 +144,9 @@ int main(int argc, char **argv) {
         printf(RED"Plseae Input: \n"NONE);
         scanf("%[^\n]s", msg.msg);
         getchar();
+        if (!strlen(msg.msg)) {
+            continue;
+        }
         if(msg.msg[0] == '@') {
             msg.type = CHAT_MSG;
         }

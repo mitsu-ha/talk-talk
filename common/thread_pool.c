@@ -11,45 +11,6 @@ extern int repollfd, bepollfd;
 extern struct User *rteam;
 extern struct User *bteam;
 
-void send_all(struct ChatMsg *msg) {
-    for (int i = 0; rteam[i].online; i++) {
-        send(rteam[i].fd, (void *)msg, sizeof(*msg), 0);
-    }
-    for (int i = 0; bteam[i].online; i++) {
-        send(bteam[i].fd, (void *)msg, sizeof(*msg), 0);
-    }
-}
-
-void send_one(struct ChatMsg *msg, struct User * user) {
-    send(user->fd, (void *)msg, sizeof(*msg), 0);
-}
-
-struct User *find_receiver(char *name) {
-    for (int i = 0; bteam[i].online == 1; i++) {
-        if (strcmp(name, bteam[i].name) == 0) {
-            return &bteam[i];
-        }
-    }
-    for (int i = 0; rteam[i].online == 1; i++) {
-        if (strcmp(name, rteam[i].name) == 0) {
-            return &rteam[i];
-        }
-    }
-
-    return NULL;
-}
-
-void show_members() {
-    printf(BLUE"Blue team:"NONE"\n");
-    for (int i = 1; bteam[i].online; i++) {
-        printf("%s\n", bteam[i].name);w
-    }
-    printf(RED"Red team:"NONE"\n");
-    for (int i = 1; rteam[i].online; i++) {
-        printf("%s\n", rteam[i].name);
-    }
-}
-
 void do_work(struct User *user){
     struct ChatMsg msg;
     bzero(&msg, sizeof(msg));
@@ -95,7 +56,7 @@ void do_work(struct User *user){
         close(user->fd);
     } else if (msg.type & CHAT_FUNC) {
         switch(msg.msg[1]) {
-            case '1' : show_members(); break;
+            case '1' : show_members(user); break;
             default : break;
         }
     }
