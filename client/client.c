@@ -19,14 +19,16 @@ void *do_recv () {
         recv(sockfd, (void *)&msg, sizeof(msg), 0);
         
         if (msg.type & CHAT_WALL) {
-            printf(" <%s> ~ %s\n", msg.name, msg.msg);
+            printf(L_PINK" <%s> ~ "NONE"%s\n", msg.name, msg.msg);
         } else if (msg.type & CHAT_MSG){
             printf("%s\n", msg.msg);
         } else if (msg.type & CHAT_FUNC) {
             printf("%s\n", msg.msg);
         } else if (msg.type & CHAT_FIN){
-            printf("%s\n", msg.msg);
+            printf(GREEN"系统提示:"NONE"\n%s\n", msg.msg);
             exit(1);
+        } else if (msg.type & CHAT_SYS) {
+            printf(L_GREEN"公告:"NONE"%s\n", msg.msg);
         }
     }
 }
@@ -37,7 +39,7 @@ void logout(int signum) {
     msg.type = CHAT_FIN;
     send(sockfd, (void *)&msg, sizeof(msg), 0);
     close(sockfd);
-    printf("BYE!");
+    printf(L_PINK"拜拜~"NONE"\n");
     exit(0);
 }
 
@@ -93,6 +95,14 @@ int main(int argc, char **argv) {
         exit(1);
     }
     
+    pthread_t recv_t;          
+    int err = pthread_create(&recv_t, NULL, do_recv, NULL);
+    
+    if (err < 0) {
+        perror("create pthread fail!\n");
+        exit(1);
+    }
+
     sendto(sockfd, (void *)&request, sizeof(request), 0, (struct sockaddr *)&server, len);
 
     fd_set rfds;
@@ -128,20 +138,15 @@ int main(int argc, char **argv) {
     //DBG(RED"Server Info"NONE" : %s\n",buff);
     signal(SIGINT, logout);
 
-    pthread_t recv_t;
-    int err = pthread_create(&recv_t, NULL, do_recv, NULL);
-    
-    if (err < 0) {
-        perror("create pthread fail!\n");
-        exit(1);
-    }
-
+ 
     while(1) {
+        
+        usleep(100000);
         struct ChatMsg msg;
         bzero(&msg, sizeof(msg));
         msg.type = CHAT_WALL;
         strcpy(msg.name, request.name);
-        printf(RED"Plseae Input: \n"NONE);
+        printf(L_RED"说点什么吧 ："NONE);
         scanf("%[^\n]s", msg.msg);
         getchar();
         if (!strlen(msg.msg)) {

@@ -29,7 +29,7 @@ void logout_server(int signum) {
         send(rteam[i].fd, (void *)&msg, sizeof(msg), 0);
     }
     printf(L_RED"The sever is off\n"NONE);
-    exit(0);
+    exit(1);
 }
 
 

@@ -50,7 +50,7 @@ void show_members(struct User * user) {
         sprintf(msg.msg,"%s", bteam[i].name);
         send_one(&msg, user);
     }
-    sprintf(msg.msg, RED"Red team:"NONE);
+    sprintf(msg.msg, L_RED"Red team:"NONE);
     send_one(&msg, user);
     
     for (int i = 0; rteam[i].online; i++) {

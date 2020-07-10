@@ -45,6 +45,14 @@ void add_to_sub_reactor(struct User *user) {
     else 
         add_event_ptr(repollfd, team[sub].fd, EPOLLIN | EPOLLET, &team[sub]);
 
+    
+    printf(GREEN"公告:"L_YELLOW"欢迎%s进入直播间~\n"NONE, user->name);
+    struct ChatMsg msg;
+    bzero(&msg, sizeof(msg));
+    msg.type = CHAT_SYS;
+    sprintf(msg.msg, L_YELLOW"欢迎%s进入直播间~"NONE, user->name);
+    send_all(&msg);
+
 }
 
 int udp_connect(struct sockaddr_in *client) {
@@ -108,6 +116,7 @@ int udp_accept(int fd, struct User *user) {
     strcpy(response.msg, "Login Success. Enjoy yourself!");
     sendto(fd, (void *)&response, sizeof(response), 0, (struct sockaddr *)&client, len);
     
+
     if (request.team) {
         DBG(GREEN"Info"NONE" : "BLUE"%s login on %s:%d  <%s>\n", request.name, inet_ntoa(client.sin_addr), ntohs(client.sin_port), request.msg);
     } else {

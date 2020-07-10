@@ -17,7 +17,7 @@ void do_work(struct User *user){
     recv(user->fd, (void *)&msg, sizeof(msg), 0);
 
     if (msg.type & CHAT_WALL) {
-        printf("<%s> ~ %s \n", user->name, msg.msg);
+        printf(L_PINK"<%s> ~ "NONE"%s \n", user->name, msg.msg);
         send_all(&msg);
     } else if (msg.type & CHAT_MSG) {
         int i;
@@ -32,7 +32,7 @@ void do_work(struct User *user){
         struct User *recv;
 
         if ((recv = find_receiver(receiver)) == NULL) {
-            sprintf(send_msg.msg, "He/She is not online or you input wrong");
+            sprintf(send_msg.msg, L_GREEN"TA不在线，或者, 你输错了!"NONE);
             strcpy(send_msg.name, msg.name);
             send_msg.type = CHAT_MSG;
             send_one(&send_msg, user);
@@ -53,6 +53,12 @@ void do_work(struct User *user){
         int epollfd = user->team ? bepollfd : repollfd;
         del_event(epollfd, user->fd);
         printf(GREEN"Server Info"NONE" : %s logout\n", user->name);
+        struct ChatMsg send_msg;
+        bzero(&send_msg, sizeof(send_msg));
+        send_msg.type = CHAT_SYS;
+        sprintf(send_msg.msg, L_YELLOW"%s离开了直播间"NONE, user->name);
+        send_all(&send_msg);
+
         close(user->fd);
     } else if (msg.type & CHAT_FUNC) {
         switch(msg.msg[1]) {
