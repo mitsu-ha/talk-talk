@@ -111,7 +111,7 @@ void show_message(WINDOW *win, struct ChatMsg *msg, int type) {
     char timestr[20] = {0};
     sprintf(timestr, "%02d:%02d:%02d ", tm->tm_hour, tm->tm_min, tm->tm_sec);
     if (type || msg->type & CHAT_SYS) {
-        strcpy(msg->name, "公告");
+        strcpy(msg->name, "公告 :");
     }
 
     if (msgnum > MSG_HEIGHT - 3) {
@@ -120,13 +120,18 @@ void show_message(WINDOW *win, struct ChatMsg *msg, int type) {
     }
     wattron(win, COLOR_PAIR(5));
     w_gotoxy_puts(win, 1, msgnum, timestr);
-    if (type == 1 || (msg->type & CHAT_SYS))
+    if (type == 1 || (msg->type & CHAT_SYS)) {
         wattron(win, COLOR_PAIR(4));
-    else if (msg->type & CHAT_MSG)
+        w_gotoxy_puts(win, 10, msgnum, msg->name);
+    }
+    else if (msg->type & CHAT_MSG) {
         wattron(win, COLOR_PAIR(7));
-    else
+        bzero(&msg->name, strlen(msg->name));
+    }   
+    else {
+        w_gotoxy_puts(win, 10, msgnum, msg->name);
         wattron(win, COLOR_PAIR(6));
-    w_gotoxy_puts(win, 10, msgnum, msg->name);
+    }
     wattron(win, COLOR_PAIR(3));
     w_gotoxy_puts(win, 10 + strlen(msg->name), msgnum, msg->msg);
     int tmp = ((strlen(msg->msg) + 17) / MSG_WIDTH) + 1;

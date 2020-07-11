@@ -8,7 +8,7 @@
 #include "head.h"
 
 extern int sockfd;
-extern WINDOW *message_win;
+extern WINDOW *message_sub;
 void *do_recv () {
     while (1) {
 		
@@ -16,6 +16,6 @@ void *do_recv () {
         bzero(&msg, sizeof(msg));
         recv(sockfd, (void *)&msg, sizeof(msg), 0);
         
-	    show_message(message_win, &msg, 0);
+	    show_message(message_sub, &msg, 0);
     }
 }

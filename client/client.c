@@ -72,7 +72,7 @@ int main(int argc, char **argv) {
     server.sin_addr.s_addr = inet_addr(server_ip);
 
     socklen_t len = sizeof(server);
-
+    setlocale(LC_ALL,"");
     init_ui();
     if ((sockfd = socket_udp()) < 0) {
         perror("socket_udp()");

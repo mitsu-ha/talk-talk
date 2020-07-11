@@ -22,7 +22,7 @@ void logout_server(int signum) {
     struct ChatMsg msg;
     bzero(&msg, sizeof(msg));
     msg.type = CHAT_FIN;
-    sprintf(msg.msg,L_RED"Server off!\n"BLUE"Thanks for use!"NONE);
+    sprintf(msg.msg, "Server off!\nThanks for use!");
     for (int i = 0; bteam[i].online; i++) {
         send(bteam[i].fd, (void *)&msg, sizeof(msg), 0);
     }

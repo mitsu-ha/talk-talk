@@ -19,7 +19,7 @@ void send_chat() {
     bzero(&msg, sizeof(msg));
     msg.type = CHAT_WALL;
     strcpy(msg.name, name);
-	w_gotoxy_puts(input_win, 1, 1, L_RED"说点什么吧 ："NONE);
+	w_gotoxy_puts(input_win, 1, 1,"说点什么吧 ：");
     wrefresh(input_win);
     mvwscanw(input_win, 2, 1, "%[^\n]s", msg.msg);
     if (!strlen(msg.msg)) {

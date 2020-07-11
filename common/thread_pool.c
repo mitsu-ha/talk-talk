@@ -25,14 +25,14 @@ void do_work(struct User *user){
         struct ChatMsg send_msg;
         bzero(&send_msg, sizeof(send_msg));
 
-        for (i = 0; msg.msg[i + 1] != ' '; i++) {
+        for (i = 0; msg.msg[i + 1] != ' '&& msg.msg[i + 1] != '\0'; i++) {
             receiver[i] = msg.msg[i + 1]; 
         }
 
         struct User *recv;
 
         if ((recv = find_receiver(receiver)) == NULL) {
-            sprintf(send_msg.msg, L_GREEN"TA不在线，或者, 你输错了!"NONE);
+            sprintf(send_msg.msg, "TA不在线，或者, 你输错了!");
             strcpy(send_msg.name, msg.name);
             send_msg.type = CHAT_MSG;
             send_one(&send_msg, user);
@@ -42,11 +42,11 @@ void do_work(struct User *user){
             strcpy(send_msg.name, msg.name);
             send_msg.type = CHAT_MSG;
             strncpy(temp, msg.msg + (i + 1), strlen(msg.msg + (i + 1)));
-            sprintf(send_msg.msg, YELLOW"<%s> --> <%s> $"BLUE"  %s"NONE, user->name, recv->name, temp);
+            sprintf(send_msg.msg, "<%s> --> <%s> $  %s", user->name, recv->name, temp);
 
             send_one(&send_msg, user);
             send_one(&send_msg, recv);
-            printf("%s\n", send_msg.msg);
+            printf(L_YELLOW"<%s> --> <%s> $ "BLUE" %s\n"NONE, user->name, recv->name, temp);
         }
     } else if (msg.type & CHAT_FIN) {
         user->online = 0;
@@ -56,7 +56,7 @@ void do_work(struct User *user){
         struct ChatMsg send_msg;
         bzero(&send_msg, sizeof(send_msg));
         send_msg.type = CHAT_SYS;
-        sprintf(send_msg.msg, L_YELLOW"%s离开了直播间"NONE, user->name);
+        sprintf(send_msg.msg, "%s离开了直播间", user->name);
         send_all(&send_msg);
 
         close(user->fd);

@@ -43,14 +43,14 @@ void show_members(struct User * user) {
     bzero(&msg, sizeof(msg));
     msg.type = CHAT_FUNC;
 
-    sprintf(msg.msg, BLUE"Blue team:"NONE);
+    sprintf(msg.msg, "Blue team:");
     send_one(&msg, user);
     
     for (int i = 0; bteam[i].online; i++) {
         sprintf(msg.msg,"%s", bteam[i].name);
         send_one(&msg, user);
     }
-    sprintf(msg.msg, L_RED"Red team:"NONE);
+    sprintf(msg.msg, "Red team:");
     send_one(&msg, user);
     
     for (int i = 0; rteam[i].online; i++) {
