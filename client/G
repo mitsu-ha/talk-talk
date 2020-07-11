@@ -1,1 +1,1 @@
-gcc -o talk client.c ../common/common.c ../common/data.c ../common/udp_client.c -lpthread -I ../common/ $1 $2
+gcc -o talk client.c ../common/common.c ../common/do_recv.c ../common/send_chat.c ../common/chat_ui.c ../common/data.c ../common/udp_client.c -lpthread -lncursesw -I ../common/ $1 $2
