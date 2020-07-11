@@ -25,7 +25,7 @@ void do_work(struct User *user){
         struct ChatMsg send_msg;
         bzero(&send_msg, sizeof(send_msg));
 
-        for (i = 0; msg.msg[i + 1] != ' '; i++) {
+        for (i = 0; msg.msg[i + 1] != ' ' && msg.msg[i + 1] != '\0'; i++) {
             receiver[i] = msg.msg[i + 1]; 
         }
 
