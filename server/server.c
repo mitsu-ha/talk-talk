@@ -15,6 +15,7 @@ struct BallStatus ball_status; //球的状态
 struct Score score;
 int repollfd, bepollfd;
 struct User *rteam, *bteam;
+pthread_mutex_t rmutex, bmutex;
 int port = 0;
 
 void logout_server(int signum) {
@@ -72,6 +73,9 @@ int main(int argc, char **argv) {
 
     rteam = (struct User *)calloc(MAX, sizeof(struct User));
     bteam = (struct User *)calloc(MAX, sizeof(struct User));
+
+    pthread_mutex_init(&bmutex, NULL);
+    pthread_mutex_init(&rmutex, NULL);
 
     epollfd = epoll_create(MAX * 2);
     repollfd = epoll_create(MAX);

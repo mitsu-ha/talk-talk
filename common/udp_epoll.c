@@ -10,6 +10,7 @@ extern int port;
 extern struct User *rteam;
 extern struct User *bteam;
 extern int repollfd, bepollfd;
+extern pthread_mutex_t rmutex, bmutex;
 
 void add_event_ptr(int epollfd, int fd, int events, struct User *user) {
     struct epoll_event ev;
@@ -30,7 +31,11 @@ int find_sub(struct User *team) {
 
 void add_to_sub_reactor(struct User *user) {
     struct User *team = (user -> team ? bteam : rteam);
-    
+    if (user->team) 
+        pthread_mutex_lock(&bmutex);
+    else 
+        pthread_mutex_lock(&rmutex);
+
     int sub = find_sub(team);
     if (sub < 0) {
         fprintf(stderr, "Full Team!\n");
@@ -39,6 +44,10 @@ void add_to_sub_reactor(struct User *user) {
     team[sub] = *user;
     team[sub].online = 1;
     team[sub].flag = 10;
+    if (user->team) 
+        pthread_mutex_unlock(&bmutex);
+    else
+        pthread_mutex_unlock(&rmutex);
     DBG(L_RED"sub = %d, name = %s\n", sub, team[sub].name);
     if (user->team)
         add_event_ptr(bepollfd, team[sub].fd, EPOLLIN | EPOLLET, &team[sub]);    
